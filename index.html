@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            padding-top: 36px;
+            padding-top: 72px;
         }
 
         .container {
@@ -28,7 +28,7 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             width: 450px;
             text-align: center;
-            margin-top: -36px;
+            margin-top: -72px;
         }
 
         h1 {
@@ -261,7 +261,7 @@
 
         .notification-bar {
             position: fixed;
-            top: 0;
+            top: 36px;
             left: 0;
             width: 100%;
             background-color: rgba(217, 214, 24, 0.08);
@@ -292,13 +292,46 @@
         }
 
         .points-container {
-            margin-top: 10px;  /* Reduced from 20px */
+            margin-top: 10px;
+        }
+
+        .sponsored-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 107, 0, 0.1);
+            color: #ff6b00;
+            text-align: center;
+            padding: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 107, 0, 0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .sponsored-bar a {
+            color: #ff6b00;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .sponsored-bar a:hover {
+            color: #ff8533;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+    <div class="sponsored-bar">
+        🚀 Sponsored by RapidNode - Get your Nexus node for just $4.99! 
+        <a href="https://app.rapidnode.xyz/purchase/nexus_v2" target="_blank">Purchase Now →</a>
+    </div>
     <div class="notification-bar">
-        API might be unresponsive at times. Please retry after a few minutes.
+        ⚠️ API might be unresponsive sometimes. Please retry after sometime
     </div>
     <div class="container">
         <h1>Nexus Testnet-II Points Checker</h1>
@@ -308,7 +341,9 @@
 
         <div class="disclaimer">
             ⚠️ DISCLAIMER ⚠️
-            <p>This information is sourced from <a href="https://beta.orchestrator.nexus.xyz/users/" target="_blank">beta.orchestrator.nexus.xyz</a></p>        </div>
+            <p>This information is sourced from <a href="https://beta.orchestrator.nexus.xyz/users/" target="_blank">beta.orchestrator.nexus.xyz</a></p>
+            <p>(data might be incorrect and vary from real points)</p>
+        </div>
 
         <button onclick="showModal()">Get Points</button>
         
