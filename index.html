@@ -131,6 +131,58 @@
             width: 24px;
             height: 24px;
         }
+
+        .points-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .points-section {
+            flex: 1;
+            padding: 15px;
+            background-color: rgba(40, 40, 40, 0.5);
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+
+        .points-section h4 {
+            color: #ff6b00;
+            margin: 0 0 10px 0;
+        }
+
+        .last-updated {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        .info-btn {
+            background: none;
+            border: 1px solid #ff6b00;
+            color: #ff6b00;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .info-btn:hover {
+            background: rgba(255, 107, 0, 0.1);
+        }
+
+        .node-ids {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+            text-align: left;
+            max-height: 100px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -151,6 +203,26 @@
 
         <h3>Total Points:</h3>
         <p id="totalPoints">N/A</p>
+
+        <div class="points-container">
+            <div class="points-section">
+                <h4>
+                    Browser Node
+                    <button class="info-btn" onclick="toggleNodeIds('browserNodeIds')">i</button>
+                </h4>
+                <p id="browserPoints">N/A</p>
+                <div id="browserNodeIds" class="node-ids" style="display: none;"></div>
+            </div>
+            <div class="points-section">
+                <h4>
+                    CLI Node
+                    <button class="info-btn" onclick="toggleNodeIds('cliNodeIds')">i</button>
+                </h4>
+                <p id="cliPoints">N/A</p>
+                <div id="cliNodeIds" class="node-ids" style="display: none;"></div>
+            </div>
+        </div>
+        <p id="lastUpdated" class="last-updated">Last Updated: N/A</p>
 
         <div class="footer">
             Made with ❤️ by Navaneeth
@@ -175,6 +247,11 @@
     </div>
 
     <script>
+        function toggleNodeIds(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = element.style.display === 'none' ? 'block' : 'none';
+        }
+
         async function getTestnetPoints() {
             const walletAddress = document.getElementById('walletAddress').value;
             
@@ -183,15 +260,15 @@
                 return;
             }
 
-            // Show loading spinner
             document.getElementById('loading').style.display = 'block';
             document.getElementById('totalPoints').textContent = 'N/A';
+            document.getElementById('browserPoints').textContent = 'N/A';
+            document.getElementById('cliPoints').textContent = 'N/A';
+            document.getElementById('lastUpdated').textContent = 'Last Updated: N/A';
 
-            // Construct the URL with the wallet address
             const url = `https://beta.orchestrator.nexus.xyz/users/${walletAddress}`;
 
             try {
-                // Fetch the data from the API with CORS mode
                 const response = await fetch(url, {
                     method: 'GET',
                     mode: 'cors',
@@ -203,13 +280,32 @@
                 const data = await response.json();
 
                 if (data && data.data && data.data.nodes) {
-                    // Filter nodes that are of type "testnet_two" and sum their points
-                    const totalPoints = data.data.nodes.reduce((sum, node) => {
-                        return sum + node.testnet_two_points;
-                    }, 0);
+                    // Separate nodes by type
+                    const browserNodes = data.data.nodes.filter(node => node.nodeType === 1);
+                    const cliNodes = data.data.nodes.filter(node => node.nodeType === 2);
 
-                    // Display the result
+                    // Calculate points
+                    const browserPoints = browserNodes.reduce((sum, node) => sum + node.testnet_two_points, 0);
+                    const cliPoints = cliNodes.reduce((sum, node) => sum + node.testnet_two_points, 0);
+                    const totalPoints = browserPoints + cliPoints;
+
+                    // Display points
                     document.getElementById('totalPoints').textContent = totalPoints;
+                    document.getElementById('browserPoints').textContent = browserPoints;
+                    document.getElementById('cliPoints').textContent = cliPoints;
+
+                    // Display node IDs
+                    document.getElementById('browserNodeIds').innerHTML = browserNodes
+                        .map(node => `${node.id} - ${node.testnet_two_points}`)
+                        .join('<br>');
+                    document.getElementById('cliNodeIds').innerHTML = cliNodes
+                        .map(node => `${node.id} - ${node.testnet_two_points}`)
+                        .join('<br>');
+
+                    // Update last updated time
+                    const lastUpdated = new Date(data.data.nodes[0].lastUpdated);
+                    document.getElementById('lastUpdated').textContent = 
+                        `Last Updated: ${lastUpdated.toLocaleString()}`;
                 } else {
                     alert("Invalid wallet address.");
                 }
@@ -217,7 +313,6 @@
                 console.error('Error fetching data:', error);
                 alert("Error fetching data. Please try again.");
             } finally {
-                // Hide loading spinner
                 document.getElementById('loading').style.display = 'none';
             }
         }
